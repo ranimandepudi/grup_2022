@@ -1,0 +1,69 @@
+name: Ecommerce Website Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+    
+  workflow_dispatch:
+    inputs:
+      git-ref:
+        description: Git Ref (Optional)    
+        required: false
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Configure AWS
+      run: |
+        aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }} 
+        aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }} 
+        aws configure set aws_session_token ${{ secrets.AWS_SESSION_TOKEN }}
+        aws configure set region us-east-1
+    #
+    #- name: Configure AWS credentials
+    #  uses: aws-actions/configure-aws-credentials@v1
+    #  with:
+    #    aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+    #    aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    #    aws-region: us-east-1
+        
+    #- name: update aws token
+    #  run: echo aws_session_token=${{ secrets.AWS_SESSION_TOKEN }} | cat >> ~/.aws/credentials
+        
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHCR_PASSWORD }}
+      
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: ghcr.io/${{ github.actor }}/final_project_devops:latest
+    
+    - uses: azure/setup-kubectl@v2.0
+      with:
+        version: 'v1.21.3'
+        
+    - name: Update kube config
+      run: aws eks update-kubeconfig --name k8s-test
+        
+    - name: Run k8s-deployment file
+      run: kubectl apply -f deployment.yaml
+      
+    - name: Run k8s-service file
+      run:  kubectl apply -f service.yaml
+      
+    - name: Updating the image
+      run: kubectl set image deployments ecommerce-deployment ecommerce=ghcr.io/${{ github.actor }}/final_project_devops:latest6 
+

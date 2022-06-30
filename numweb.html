@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+        <meta charset="UTF-8">
+        <title></title>
+        <header>
+                <h1 align="center"> VEHICLE DETAILS PROVIDER </h1>
+        </header>
+</head>
+
+<body>
+        <script>
+
+                function show() {
+                        inp = document.getElementById('command').value;
+			if ((inp == 'HR 26 DA 2330'))
+			{
+                     		x=1;
+                        }
+			if((inp == 'HR26D05551'))
+			{
+				x=2;
+			}
+                        else 
+			{
+                                    print("error");
+                        }
+
+                        var xhr = new XMLHttpRequest();
+                        xhr.open("GET", "http://192.168.99.105//cgi-bin/licen.py?x="+x, true);
+                        xhr.send();
+                        xhr.onload = function () {
+                                var output = xhr.responseText;
+                                document.getElementById("s1").innerHTML = output;
+                        }
+                }
+        </script>
+
+        <main>
+                <p align="center">Enter the vehicle number</p>
+                <p align="center"><input id='command' /></p>
+                <p align="center"><button onclick= 'show()'>Enter</button></p>
+                <br />
+                <pre>
+		<b>
+
+		<center>
+			<div id="s1", align="center", font-size="20px"></div>
+		</center>		 
+		  
+		<b>
+		</pre>
+                <br />
+                <br />
+              
+        </main>
+</body>
+
+</html>
