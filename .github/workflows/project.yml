@@ -1,4 +1,4 @@
-name: Ecommerce Website Pipeline
+name: Detector 
 
 on:
   push:
