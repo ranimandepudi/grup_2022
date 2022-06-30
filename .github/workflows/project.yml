@@ -67,3 +67,5 @@ jobs:
     - name: Updating the image
       run: kubectl set image deployments ecommerce-deployment ecommerce=ghcr.io/${{ github.actor }}/final_project_devops:latest6 
 
+    - name: Website URL
+      run: kubectl get all | grep LoadBalancer
